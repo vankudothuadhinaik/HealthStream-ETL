@@ -161,7 +161,7 @@ class ValidationEdgeCaseTests(unittest.TestCase):
             root = Path(directory)
             source = root / "input.csv"
             source.write_text(
-                ",".join(HEADER) + ",\\n",
+                ",".join(HEADER) + ",\n",
                 encoding="utf-8",
             )
             with self.assertRaisesRegex(ValueError, "empty column name"):
