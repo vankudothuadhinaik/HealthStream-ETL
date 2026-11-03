@@ -131,10 +131,6 @@ class ValidationEdgeCaseTests(unittest.TestCase):
                 run_etl(source, root / "out")
             self.assertFalse((root / "out" / "cleaned_events.csv").exists())
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 
     def test_rejection_row_number_tracks_physical_lines_after_multiline_records(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -157,3 +153,7 @@ if __name__ == "__main__":
                 report["rejection_details"],
                 [{"row": 5, "reason": "event_date must use YYYY-MM-DD"}],
             )
+
+
+if __name__ == "__main__":
+    unittest.main()
