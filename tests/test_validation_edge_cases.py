@@ -155,5 +155,19 @@ class ValidationEdgeCaseTests(unittest.TestCase):
             )
 
 
+
+    def test_blank_header_name_fails_before_outputs_are_written(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "input.csv"
+            source.write_text(
+                ",".join(HEADER) + ",\\n",
+                encoding="utf-8",
+            )
+            with self.assertRaisesRegex(ValueError, "empty column name"):
+                run_etl(source, root / "out")
+            self.assertFalse((root / "out" / "cleaned_events.csv").exists())
+
+
 if __name__ == "__main__":
     unittest.main()
