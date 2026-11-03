@@ -86,8 +86,6 @@ def run_etl(input_path: str | Path, output_dir: str | Path) -> dict[str, Any]:
         fieldnames = next(reader, None)
         if not fieldnames:
             raise ValueError("Input CSV is empty or has no header")
-        if any(not name.strip() for name in fieldnames):
-            raise ValueError("Input CSV contains an empty column name")
         if len(fieldnames) != len(set(fieldnames)):
             raise ValueError("Input CSV contains duplicate column names")
         if any(not column.strip() for column in fieldnames):
