@@ -18,6 +18,6 @@ The pipeline accepts encounter CSV input and writes three artifacts to the reque
 
 ## Operational notes
 
-The current implementation reads the CSV into memory before transforming it. This is appropriate for the included sample, but memory usage grows with input size. For large data sets, use streaming validation and a bounded/disk-backed duplicate-key strategy, while preserving deterministic output and accurate row diagnostics.
+The CSV reader validates records incrementally and reports the physical starting line of each rejected record, including records containing quoted newlines. The implementation still retains accepted rows, seen event IDs, and rejection details in memory so it can produce deterministic sorted outputs and a complete quality report. Memory therefore grows with the accepted and rejected data. For very large data sets, use disk-backed staging and a bounded/disk-backed duplicate-key strategy while preserving deterministic output and accurate row diagnostics.
 
 Output files are overwritten on each run. Run into a fresh output directory when comparing results or retaining audit artifacts. This is a synthetic educational dataset and is not intended for clinical decision-making.
