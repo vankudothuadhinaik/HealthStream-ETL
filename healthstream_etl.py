@@ -82,20 +82,33 @@ def run_etl(input_path: str | Path, output_dir: str | Path) -> dict[str, Any]:
     input_rows = 0
 
     with source.open("r", newline="", encoding="utf-8-sig") as handle:
-        reader = csv.DictReader(handle, strict=True)
-        if reader.fieldnames is None:
+        reader = csv.reader(handle, strict=True)
+        fieldnames = next(reader, None)
+        if not fieldnames:
             raise ValueError("Input CSV is empty or has no header")
-        if len(reader.fieldnames) != len(set(reader.fieldnames)):
+        if len(fieldnames) != len(set(fieldnames)):
             raise ValueError("Input CSV contains duplicate column names")
-        missing = [column for column in REQUIRED_COLUMNS if column not in reader.fieldnames]
+        missing = [column for column in REQUIRED_COLUMNS if column not in fieldnames]
         if missing:
             raise ValueError("Input CSV missing required columns: " + ", ".join(missing))
 
-        for row_number, row in enumerate(reader, start=2):
+        previous_line_number = reader.line_num
+        for values in reader:
+            if not values:
+                previous_line_number = reader.line_num
+                continue
+
             input_rows += 1
-            if None in row:
+            row_number = previous_line_number + 1
+            previous_line_number = reader.line_num
+            if len(values) > len(fieldnames):
                 rejected.append({"row": row_number, "reason": "row contains more fields than the header"})
                 continue
+
+            row = {
+                column: values[index] if index < len(values) else ""
+                for index, column in enumerate(fieldnames)
+            }
             normalized, error = _normalize(row, row_number)
             if error:
                 rejected.append({"row": row_number, "reason": error})
